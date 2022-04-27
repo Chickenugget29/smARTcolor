@@ -3,7 +3,7 @@ package org.headroyce.smartcolor.smartcolor;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class HelloController {
+public class GUI {
     @FXML
     private Label welcomeText;
 
