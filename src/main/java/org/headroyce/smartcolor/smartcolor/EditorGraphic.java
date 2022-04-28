@@ -14,20 +14,27 @@ import javafx.stage.FileChooser;
 import java.io.File;
 
 public class EditorGraphic extends BorderPane {
-    private ImageView img;
+    private ImageView imageView;
+    private Image img;
     private Button uploadBtn;
+    private Logic logic;
+
+    private Button grayscaleBtn;
 
     public EditorGraphic(){
         this.setCenter(imgLayout());
+        logic = new Logic();
     }
 
     private VBox imgLayout(){
-        img = new ImageView();
+        imageView = new ImageView();
         uploadBtn = new Button("Choose Image");
         uploadBtn.setOnAction(new UploadHandler());
+        grayscaleBtn = new Button("Grayscale");
+        grayscaleBtn.setOnAction(new GrayscaleHandler());
 
         VBox rtn = new VBox();
-        rtn.getChildren().addAll(uploadBtn, img);
+        rtn.getChildren().addAll(uploadBtn, grayscaleBtn, imageView);
         return rtn;
     }
 
@@ -47,8 +54,18 @@ public class EditorGraphic extends BorderPane {
 
             //Shows selected image
             if (file != null) {
-                img.setImage( new Image(file.toURI().toString()) );
+                img = new Image(file.toURI().toString());
+                imageView.setImage(img);
             }
+        }
+    }
+
+    /**
+     * Handler for the grayscale button
+     */
+    private class GrayscaleHandler implements EventHandler<ActionEvent> {
+        public void handle(ActionEvent e) {
+            imageView.setImage( logic.toGrayScale(img) );
         }
     }
 }
