@@ -1,6 +1,5 @@
 package org.headroyce.smartcolor.smartcolor;
 
-import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -11,7 +10,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.File;
 
@@ -22,42 +20,30 @@ public class EditorGraphic extends BorderPane {
     private Logic logic;
 
     private Button grayscaleBtn;
-    private Button colorBtn;
-    private Button resetBtn;
 
-    public EditorGraphic(Stage s){
-        VBox imgLayout = imgLayout(s.getHeight(), s.getWidth());
-        this.setCenter(imgLayout);
-        this.setRight(resetLayout());
+    public EditorGraphic(){
+        this.setCenter(imgLayout());
         logic = new Logic();
     }
 
-    private VBox resetLayout(){
-
-        resetBtn = new Button("Reset");
-        resetBtn.setOnAction(new ResetHandler());
-        VBox rtn = new VBox();
-        rtn.getChildren().add(resetBtn);
-        return rtn;
-    }
-
-    private VBox imgLayout(double h, double w){
+    /**
+     * Creates the layout of the screen
+     * @return the layout
+     */
+    private VBox imgLayout(){
         imageView = new ImageView();
-        imageView.setFitHeight(h);
-        imageView.setFitWidth(w);
-
+        imageView.fitWidthProperty().bind(this.widthProperty());
+        imageView.setPreserveRatio(true);
         uploadBtn = new Button("Choose Image");
         uploadBtn.setOnAction(new UploadHandler());
         grayscaleBtn = new Button("Grayscale");
         grayscaleBtn.setOnAction(new GrayscaleHandler());
-        colorBtn = new Button("Randomize Color");
-        colorBtn.setOnAction(new RandomizeColor());
-
 
         VBox rtn = new VBox();
-        rtn.getChildren().addAll(uploadBtn, grayscaleBtn, colorBtn, imageView);
+        rtn.getChildren().addAll(uploadBtn, grayscaleBtn, imageView);
         return rtn;
     }
+
     /**
      * Handler for the upload button
      */
@@ -76,11 +62,9 @@ public class EditorGraphic extends BorderPane {
             if (file != null) {
                 img = new Image(file.toURI().toString());
                 imageView.setImage(img);
-
             }
         }
     }
-
 
     /**
      * Handler for the grayscale button
@@ -89,16 +73,5 @@ public class EditorGraphic extends BorderPane {
         public void handle(ActionEvent e) {
             imageView.setImage( logic.toGrayScale(img) );
         }
-    }
-
-    private class RandomizeColor implements EventHandler<ActionEvent> {
-        public void handle(ActionEvent e) { imageView.setImage( logic.toRandomColors(img));}
-    }
-
-    /**
-     * Handler for the reset button
-     */
-    private class ResetHandler implements EventHandler<ActionEvent> {
-        public void handle(ActionEvent e){ imageView.setImage( logic.resetImage(img));}
     }
 }

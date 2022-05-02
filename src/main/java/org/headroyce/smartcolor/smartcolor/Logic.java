@@ -60,8 +60,6 @@ public class Logic {
         WritableImage RandImage = new WritableImage((int)w, (int)h);
         PixelWriter writer = RandImage.getPixelWriter();
 
-
-
         for(int l = 0; l < w; l ++) {
             for (int p = 0; p < h; p++){
                 int argb = pR.getArgb(l, p);
