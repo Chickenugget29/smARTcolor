@@ -2,11 +2,17 @@ package org.headroyce.smartcolor.smartcolor;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
+
+import java.util.Random;
 
 public class Logic {
-    public Logic(){
 
+    private Random rand;
+    public Logic(){
+        rand = new Random();
     }
 
     /**
@@ -45,6 +51,60 @@ public class Logic {
             }
         }
         return grayImage;
+    }
+
+    public Image toRandomColors(Image i){
+        double w =  i.getWidth();
+        double h =  i.getHeight();
+        PixelReader pR = i.getPixelReader();
+        WritableImage RandImage = new WritableImage((int)w, (int)h);
+        PixelWriter writer = RandImage.getPixelWriter();
+
+
+
+        for(int l = 0; l < w; l ++) {
+            for (int p = 0; p < h; p++){
+                int argb = pR.getArgb(l, p);
+                int a = (argb >> 24) & 0xFF;
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >>  8) & 0xFF;
+                int b =  argb & 0xFF;
+
+                argb = (a << 24) | (r << 16) | (g << 8) | b;
+                writer.setArgb(l, p, argb);
+
+            }
+        }
+
+        return RandImage;
+
+    }
+
+    public Image resetImage(Image i){
+        double w =  i.getWidth();
+        double h =  i.getHeight();
+        PixelReader pR = i.getPixelReader();
+        WritableImage resettedImage = new WritableImage((int)w, (int)h);
+        PixelWriter writer = resettedImage.getPixelWriter();
+
+
+
+        for(int l = 0; l < w; l ++) {
+            for (int p = 0; p < h; p++){
+                int argb = pR.getArgb(l, p);
+                int a = (argb >> 24) & 0xFF;
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >>  8) & 0xFF;
+                int b =  argb & 0xFF;
+
+                argb = (a << 24) | (r << 16) | (g << 8) | b;
+                writer.setArgb(l, p, argb);
+
+            }
+        }
+
+        return resettedImage;
+
     }
 
 }

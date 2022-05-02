@@ -11,10 +11,11 @@ import java.io.IOException;
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        Scene scene = new Scene(new EditorGraphic(), 600, 600);
+        Scene scene = new Scene(new EditorGraphic(stage), 600, 600);
         stage.setTitle("smARTcolor");
         stage.setScene(scene);
         stage.show();
+        stage.setMaximized(true);
     }
 
     public static void main(String[] args) {
