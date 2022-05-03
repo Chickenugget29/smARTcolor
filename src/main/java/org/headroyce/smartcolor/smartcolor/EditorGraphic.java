@@ -20,6 +20,7 @@ public class EditorGraphic extends BorderPane {
     private Logic logic;
 
     private Button grayscaleBtn;
+    private Button resetBtn;
 
     public EditorGraphic(){
         this.setCenter(imgLayout());
@@ -38,9 +39,11 @@ public class EditorGraphic extends BorderPane {
         uploadBtn.setOnAction(new UploadHandler());
         grayscaleBtn = new Button("Grayscale");
         grayscaleBtn.setOnAction(new GrayscaleHandler());
+        resetBtn = new Button("Reset");
+        resetBtn.setOnAction(new ResetHandler());
 
         VBox rtn = new VBox();
-        rtn.getChildren().addAll(uploadBtn, grayscaleBtn, imageView);
+        rtn.getChildren().addAll(uploadBtn, grayscaleBtn, imageView, resetBtn);
         return rtn;
     }
 
@@ -72,6 +75,12 @@ public class EditorGraphic extends BorderPane {
     private class GrayscaleHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
             imageView.setImage( logic.toGrayScale(img) );
+        }
+    }
+
+    private class ResetHandler implements EventHandler<ActionEvent> {
+        public void handle(ActionEvent e) {
+            imageView.setImage( logic.reset(img));
         }
     }
 }

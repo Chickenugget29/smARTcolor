@@ -53,7 +53,7 @@ public class Logic {
         return grayImage;
     }
 
-    public Image toRandomColors(Image i){
+    public Image reset(Image i){
         double w =  i.getWidth();
         double h =  i.getHeight();
         PixelReader pR = i.getPixelReader();
