@@ -1,5 +1,6 @@
 module org.headroyce.smartcolor.smartcolor {
     requires javafx.controls;
+    requires java.desktop;
     requires javafx.fxml;
 
 

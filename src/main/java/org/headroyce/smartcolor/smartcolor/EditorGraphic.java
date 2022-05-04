@@ -11,6 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import java.io.File;
+import javax.imageio.ImageIO;
 
 
 public class EditorGraphic extends BorderPane {
@@ -102,6 +103,7 @@ public class EditorGraphic extends BorderPane {
     private class SaveHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
             // how to download ImageIO???
+
         }
     }
 }

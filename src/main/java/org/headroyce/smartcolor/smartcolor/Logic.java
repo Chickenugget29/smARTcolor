@@ -53,4 +53,6 @@ public class Logic {
 
         return grayImage;
     }
+
+
 }
