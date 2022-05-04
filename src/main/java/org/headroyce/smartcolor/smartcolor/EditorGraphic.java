@@ -80,7 +80,9 @@ public class EditorGraphic extends BorderPane {
      */
     private class GrayscaleHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
-            imageView.setImage( logic.toGrayScale(img) );
+            //can be removed if we don't want img to change
+            img = logic.toGrayScale(img);
+            imageView.setImage( img );
         }
     }
 
@@ -89,7 +91,8 @@ public class EditorGraphic extends BorderPane {
      */
     private class ResetHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
-            imageView.setImage( originalImg );
+            img = originalImg;
+            imageView.setImage( img );
         }
     }
 
