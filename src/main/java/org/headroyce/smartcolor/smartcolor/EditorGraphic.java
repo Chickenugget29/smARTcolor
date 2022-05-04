@@ -10,13 +10,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-
 import java.io.File;
+
 
 public class EditorGraphic extends BorderPane {
     private ImageView imageView;
     private Image img;
+    private Image originalImg;
     private Button uploadBtn;
+    private Button resetBtn;
+    private Button saveBtn;
     private Logic logic;
 
     private Button grayscaleBtn;
@@ -33,14 +36,19 @@ public class EditorGraphic extends BorderPane {
     private VBox imgLayout(){
         imageView = new ImageView();
         imageView.fitWidthProperty().bind(this.widthProperty());
+        imageView.fitHeightProperty().bind(this.heightProperty());
         imageView.setPreserveRatio(true);
         uploadBtn = new Button("Choose Image");
         uploadBtn.setOnAction(new UploadHandler());
+        saveBtn = new Button("Save Image");
+        saveBtn.setOnAction(new SaveHandler());
+        resetBtn = new Button("Reset Image");
+        resetBtn.setOnAction(new ResetHandler());
         grayscaleBtn = new Button("Grayscale");
         grayscaleBtn.setOnAction(new GrayscaleHandler());
 
         VBox rtn = new VBox();
-        rtn.getChildren().addAll(uploadBtn, grayscaleBtn, imageView);
+        rtn.getChildren().addAll(uploadBtn, saveBtn, resetBtn, grayscaleBtn, imageView);
         return rtn;
     }
 
@@ -61,6 +69,7 @@ public class EditorGraphic extends BorderPane {
             //Shows selected image
             if (file != null) {
                 img = new Image(file.toURI().toString());
+                originalImg = img;
                 imageView.setImage(img);
             }
         }
@@ -72,6 +81,24 @@ public class EditorGraphic extends BorderPane {
     private class GrayscaleHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
             imageView.setImage( logic.toGrayScale(img) );
+        }
+    }
+
+    /**
+     * Handler for the reset button
+     */
+    private class ResetHandler implements EventHandler<ActionEvent> {
+        public void handle(ActionEvent e) {
+            imageView.setImage( originalImg );
+        }
+    }
+
+    /**
+     * Handler for the save image button
+     */
+    private class SaveHandler implements EventHandler<ActionEvent> {
+        public void handle(ActionEvent e) {
+            // how to download ImageIO???
         }
     }
 }

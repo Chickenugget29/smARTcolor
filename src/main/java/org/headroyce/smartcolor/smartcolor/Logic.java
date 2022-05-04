@@ -50,6 +50,8 @@ public class Logic {
                 grayImage.getPixelWriter().setArgb(x, y, gray);
             }
         }
+        //can be removed if we don't want sourceImage to change
+        sourceImage = grayImage;
         return grayImage;
     }
 
