@@ -5,7 +5,11 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import javafx.embed.swing.SwingFXUtils;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 public class Logic {
@@ -53,6 +57,19 @@ public class Logic {
 
         return grayImage;
     }
+
+    void saveImage( Image img){
+        Image SavingImg = img;
+
+        File file = new File("C:\\MOOD\\smARTcolor\\src\\main\\java\\org\\headroyce\\smartcolor\\smartcolor\\img_saved");
+
+        try{
+            ImageIO.write(SwingFXUtils.fromFXImage(SavingImg, null), "png", file);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
 
 
 }

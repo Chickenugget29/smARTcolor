@@ -14,6 +14,9 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 
+
+
+
 public class EditorGraphic extends BorderPane {
     private ImageView imageView;
     private Image img;
@@ -102,8 +105,9 @@ public class EditorGraphic extends BorderPane {
      */
     private class SaveHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
-            // how to download ImageIO???
-
+            logic.saveImage(img);
         }
     }
+
+
 }
