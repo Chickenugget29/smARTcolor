@@ -6,6 +6,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.stage.FileChooser;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -14,9 +15,14 @@ import java.util.Random;
 
 public class Logic {
 
-    private Random rand;
-    public Logic(){
-        rand = new Random();
+    public String saveFileFormat;
+
+    /**
+     * Sets the format of the file when saving the image
+     * @param s the string to set it to: jpeg, png, pdf
+     */
+    public void setSaveFile( String s ){
+        saveFileFormat = s;
     }
 
     /**
@@ -54,22 +60,23 @@ public class Logic {
                 grayImage.getPixelWriter().setArgb(x, y, gray);
             }
         }
-
         return grayImage;
     }
 
-    void saveImage( Image img){
-        Image SavingImg = img;
-
-        File file = new File("C:\\MOOD\\smARTcolor\\src\\main\\java\\org\\headroyce\\smartcolor\\smartcolor\\img_saved");
-
-        try{
-            ImageIO.write(SwingFXUtils.fromFXImage(SavingImg, null), "png", file);
-        } catch (IOException e){
-            e.printStackTrace();
+    public void saveImage( Image img ){
+            //System.out.println(saveFileFormat.toLowerCase());
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Image");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files","PNG", "JPEG", "JPG", "*.png", "*.jpeg", "*.jpg"));
+        File file = fileChooser.showSaveDialog(null);
+        if( file != null ) {
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
-
-
 
 }
