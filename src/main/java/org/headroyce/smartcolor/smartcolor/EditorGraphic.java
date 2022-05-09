@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -20,20 +21,21 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.robot.Robot;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import java.io.File;
 import javax.imageio.ImageIO;
 
 public class EditorGraphic extends BorderPane {
     private ImageView imageView;
-    private Image img;
-    private Image originalImg;
     private Logic logic;
+    private ComboBox saveAsComboBox;
 
     private Robot robot;
 
     private Button grayscaleBtn;
     private ColorPicker colorPicker;
+    private Text notSelected;
 
     public EditorGraphic(){
         this.setCenter(imgLayout());
@@ -47,8 +49,9 @@ public class EditorGraphic extends BorderPane {
     private VBox imgLayout(){
 
         colorPicker = new ColorPicker();
-        //colorPicker.setOnAction(new ColorHandler());
+        colorPicker.setOnAction(new ColorHandler());
         colorPicker.getStyleClass().add("split-button");
+        colorPicker.setMinSize(20,25);
 
         Circle circle = new Circle(10, 10, 10);
         circle.setStroke(Color.BLACK);
@@ -56,22 +59,34 @@ public class EditorGraphic extends BorderPane {
 
         VBox vbox = new VBox();
         vbox.setMinSize(0, 0);
+        vbox.setFillWidth(true);
+        vbox.prefHeightProperty().bind(this.heightProperty());
+
         imageView = new ImageView();
         imageView.fitWidthProperty().bind(vbox.widthProperty());
         imageView.fitHeightProperty().bind(vbox.heightProperty());
         imageView.setPreserveRatio(true);
+
+        // Robot to trace pixel information
         robot = new Robot();
         vbox.getChildren().add(imageView);
 
         imageView.setOnMouseMoved(event -> {
-            // Robot and Color to trace pixel information
             Color color = robot.getPixelColor((int) event.getScreenX(), (int)event.getScreenY ());
             circle.setFill(color);
         });
         imageView.setOnMouseClicked(event -> {
-            // Robot and Color to trace pixel information
-            Color color = robot.getPixelColor((int) event.getScreenX(), (int) event.getScreenY());
-            colorPicker.setValue( color );
+            if (event.getButton() == MouseButton.SECONDARY) {
+                int x = (int) (event.getX() / imageView.getFitWidth() * logic.getWidth() + 0.5);
+                int y = (int) (event.getY() / imageView.getFitHeight() * logic.getHeight() + 0.5);
+                logic.setPixelColor(robot.getPixelColor(event.getScreenX(), event.getScreenY()));
+                logic.recolor(x,y);
+                logic.syncImg();
+            } else if (event.getButton() == MouseButton.PRIMARY) {
+                Color color = robot.getPixelColor((int) event.getScreenX(), (int) event.getScreenY());
+                colorPicker.setValue(color);
+                logic.setFill(color);
+            }
         });
 
         Button uploadBtn = new Button("Choose Image");
@@ -80,24 +95,25 @@ public class EditorGraphic extends BorderPane {
         Button saveBtn = new Button("Save Image As...");
         saveBtn.setOnAction(new SaveHandler());
 
-        ComboBox saveAsComboBox = new ComboBox();
+        notSelected = new Text("");
+        notSelected.setFill(Color.RED);
+
+        saveAsComboBox = new ComboBox();
         saveAsComboBox.setPromptText("Select Type");
         saveAsComboBox.getItems().addAll(
             "JPG",
-            "PNG",
-            "PDF",
-            "WebP"
+            "PNG"
         );
         saveAsComboBox.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue ov, String s, String newS) {
                 logic.setSaveFile(newS);
-                System.out.println(newS);
+                notSelected.setText("");
             }
         });
 
         HBox hBox = new HBox();
-        hBox.getChildren().addAll(saveBtn,saveAsComboBox);
+        hBox.getChildren().addAll(saveBtn, saveAsComboBox, notSelected);
 
         Button resetBtn = new Button("Reset Image");
         resetBtn.setOnAction(new ResetHandler());
@@ -128,9 +144,9 @@ public class EditorGraphic extends BorderPane {
 
             //Shows selected image
             if (file != null) {
-                img = new Image(file.toURI().toString());
-                originalImg = img;
-                imageView.setImage(img);
+                logic.setImg( new Image(file.toURI().toString()) );
+                imageView.setImage(logic.getImg());
+                notSelected.setText("");
             }
         }
     }
@@ -141,8 +157,8 @@ public class EditorGraphic extends BorderPane {
     private class GrayscaleHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
             //can be removed if we don't want img to change
-            img = logic.toGrayScale(img);
-            imageView.setImage(img);
+            logic.setImg( logic.toGrayScale() );
+            imageView.setImage(logic.getImg());
         }
     }
 
@@ -151,8 +167,8 @@ public class EditorGraphic extends BorderPane {
      */
     private class ResetHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
-            img = originalImg;
-            imageView.setImage(img);
+            logic.resetImg();
+            imageView.setImage(logic.getImg());
         }
     }
 
@@ -161,8 +177,22 @@ public class EditorGraphic extends BorderPane {
      */
     private class SaveHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
-            logic.saveImage(img);
+            if( logic.getImg() == null ){
+                notSelected.setText("Upload image first");
+            } else if( logic.saveFileIsNull() ) {
+                notSelected.setText("Select file type first");
+            } else {
+                logic.saveImage();
+            }
         }
     }
 
+    /**
+     * Handler for the color picker
+     */
+    private class ColorHandler implements EventHandler<ActionEvent> {
+        public void handle(ActionEvent e) {
+            logic.setFill(colorPicker.getValue());
+        }
+    }
 }
