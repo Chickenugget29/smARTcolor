@@ -14,6 +14,8 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -73,10 +75,6 @@ public class EditorGraphic extends BorderPane {
         return rtn;
     }
 
-    /**
-     * Creates the layout of the screen
-     * @return the layout
-     */
     private VBox imgLayout(){
 
         colorPicker = new ColorPicker();
@@ -111,7 +109,7 @@ public class EditorGraphic extends BorderPane {
                 int x = (int) (event.getX() / imageView.getFitWidth() * logic.getWidth() + 0.5);
                 int y = (int) (event.getY() / imageView.getFitHeight() * logic.getHeight() + 0.5);
                 logic.setPixelColor(robot.getPixelColor(event.getScreenX(), event.getScreenY()));
-                logic.recolor(x,y);
+                logic.recolor(x,y,100);
                 logic.syncImg();
             } else if (event.getButton() == MouseButton.PRIMARY) {
                 Color color = robot.getPixelColor((int) event.getScreenX(), (int) event.getScreenY());
@@ -132,8 +130,8 @@ public class EditorGraphic extends BorderPane {
         saveAsComboBox = new ComboBox();
         saveAsComboBox.setPromptText("Select Type");
         saveAsComboBox.getItems().addAll(
-            "JPG",
-            "PNG"
+                "JPG",
+                "PNG"
         );
         saveAsComboBox.valueProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -238,6 +236,17 @@ public class EditorGraphic extends BorderPane {
             Scene i = new Scene(drawing, 750, 750);
             s.setScene(i);
             s.setMaximized(true);
+
+        }
+    }
+
+    /**
+     * Deal with key presses
+     * @param event the event to handle
+     */
+    public void handleKeyPress(KeyEvent event) {
+        // Space is reset button
+        if( event.getCode() == KeyCode.F ){
 
         }
     }

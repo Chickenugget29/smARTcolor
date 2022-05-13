@@ -96,6 +96,7 @@ public class Logic {
     public void resetImg(){
         img = originalImg;
         syncWImg();
+        System.out.println("x");
     }
 
     /**
@@ -163,8 +164,12 @@ public class Logic {
         return grayImage;
     }
 
-    public void recolor( int eventx, int eventy ){
-        if( fillColor != pixelColor ){
+    public void recolor( int eventx, int eventy, int maxDepth ){
+
+        if( maxDepth == 0 ){
+            return;
+        }
+        if( !fillColor.equals(pixelColor) ){
             PixelReader pixelReader = img.getPixelReader();
             WImg.getPixelWriter().setColor(eventx, eventy, fillColor);
 
@@ -174,17 +179,17 @@ public class Logic {
                     continue;
                 }
                 for( int y = eventy - 1; y <= eventy + 1; y++ ) {
-                    if (y < 0 || y >= height) {
+                    if( y < 0 || y >= height ){
                         continue;
                     }
-                    if (!(x == eventx && y == eventy)) {
+                    if( !(x == eventx && y == eventy) ){
                         Color c = pixelReader.getColor(x, y);
-                        if (fillColor == c) {
+                        if(fillColor.equals(c)){
                             continue;
-                        } else if (Math.abs(c.getHue() - pixelColor.getHue()) <= 5 &&
-                                Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.05 &&
-                                Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.05)
-                            recolor(x, y);
+                        }else if( Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
+                                Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015 &&
+                                Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015 )
+                            recolor(x, y, maxDepth - 1);
                     }
                 }
             }
