@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
@@ -23,6 +24,8 @@ import javafx.scene.robot.Robot;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
 import java.io.File;
 import javax.imageio.ImageIO;
 
@@ -37,9 +40,37 @@ public class EditorGraphic extends BorderPane {
     private ColorPicker colorPicker;
     private Text notSelected;
 
+    private Image img;
+
+    /**
+     *
+     * @param logic
+     */
+    public EditorGraphic(Logic logic){
+        this();
+        this.logic = logic;
+        this.img = logic.getImg();
+        imageView.setImage(logic.getImg());
+    }
+
     public EditorGraphic(){
         this.setCenter(imgLayout());
-        logic = new Logic();
+        this.setRight(drawingBtnLayout());
+        this.logic = new Logic();
+    }
+
+    /**
+     * Creates the drawing button layout
+     * @return the layout
+     */
+    private VBox drawingBtnLayout(){
+        VBox rtn = new VBox();
+
+        Button draw = new Button("Draw");
+        draw.setOnAction(new DrawHandler());
+        rtn.getChildren().add(draw);
+
+        return rtn;
     }
 
     /**
@@ -193,6 +224,21 @@ public class EditorGraphic extends BorderPane {
     private class ColorHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
             logic.setFill(colorPicker.getValue());
+        }
+    }
+
+    /**
+     * Handler for the draw button
+     */
+    private class DrawHandler implements EventHandler<ActionEvent> {
+        public void handle(ActionEvent e) {
+            Image img = logic.getImg();
+            DrawingGraphics drawing = new DrawingGraphics(logic);
+            Stage s = (Stage)EditorGraphic.this.getScene().getWindow();
+            Scene i = new Scene(drawing, 750, 750);
+            s.setScene(i);
+            s.setMaximized(true);
+
         }
     }
 }
