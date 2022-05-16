@@ -2,18 +2,13 @@ package org.headroyce.smartcolor.smartcolor;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.robot.Robot;
 import javafx.stage.FileChooser;
-
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
 public class Logic {
 
@@ -23,26 +18,49 @@ public class Logic {
     private WritableImage WImg;
     private Image originalImg;
     private String saveFileFormat;
-    private Robot robot;
     private Color fillColor;
     private Color pixelColor;
+    private PixelReader pixelReader;
 
     public Logic(){
-        robot = new Robot();
         fillColor = Color.WHITE;
     }
 
     /**
-     * Sets the image and the width and heights of the image
-     * Synchs the writable image to the image
+     * Sets the image
      * @param img the image to set it to
      */
-    public void setImg( Image img ){
+    public void setImg( Image img){
+        setImg(img, false);
+    }
+
+    /**
+     * Sets the image and the width and heights of the image
+     * Syncs the writable image to the image
+     * @param img the image to set it to
+     * @param replaceOriginal if this will override the original image
+     */
+    public void setImg( Image img, boolean replaceOriginal ){
         this.img = img;
         width = (int)img.getWidth();
         height = (int)img.getHeight();
+        pixelReader = img.getPixelReader();
         syncWImg();
-        originalImg = img;
+        if( replaceOriginal){
+            originalImg = copyImage(img);
+        }
+    }
+
+    public Image copyImage( Image img ){
+        PixelReader pr = img.getPixelReader();
+        WritableImage copy = new WritableImage((int)img.getWidth(), (int)img.getHeight());
+        for (int y = 0; y < img.getHeight(); y++) {
+            for (int x = 0; x < img.getWidth(); x++) {
+                copy.getPixelWriter().setArgb(x, y, pr.getArgb(x, y));
+            }
+        }
+        System.out.println("COPY");
+        return copy;
     }
 
     /**
@@ -61,10 +79,6 @@ public class Logic {
      * Syncs the writable image to the image
      */
     private void syncWImg(){
-        PixelReader pixelReader = img.getPixelReader();
-
-        int width = (int)img.getWidth();
-        int height = (int)img.getHeight();
         WImg = new WritableImage(width, height);
 
         for (int y = 0; y < height; y++) {
@@ -86,7 +100,6 @@ public class Logic {
      * @return the image
      */
     public Image getImg(){
-        syncImg();
         return img;
     }
 
@@ -94,7 +107,7 @@ public class Logic {
      * Resets the changes; sets the image to the original image
      */
     public void resetImg(){
-        img = originalImg;
+        img = copyImage(originalImg);
         syncWImg();
         System.out.println("x");
     }
@@ -136,7 +149,6 @@ public class Logic {
      * @return the new grayscale image
      */
     public Image toGrayScale() {
-        PixelReader pixelReader = img.getPixelReader();
         WritableImage grayImage = new WritableImage(width, height);
 
         //Goes through each pixel of the image
@@ -170,7 +182,6 @@ public class Logic {
             return;
         }
         if( !fillColor.equals(pixelColor) ){
-            PixelReader pixelReader = img.getPixelReader();
             WImg.getPixelWriter().setColor(eventx, eventy, fillColor);
 
             //changing color of pixels within a 1 pixel radius of the pixel

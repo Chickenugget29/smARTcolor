@@ -8,39 +8,39 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.ImagePattern;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class DrawingGraphics extends BorderPane {
 
     private Canvas canvas;
     private Logic logic;
     private DrawLogic drawLogic;
-    private Image img;
+    private GraphicsContext gc;
 
     /**
      *
      * @param logic
      */
     public DrawingGraphics(Logic logic){
+        //might not need logic
         this.logic = logic;
 
         drawLogic = new DrawLogic();
-        this.img = logic.getImg();
+        drawLogic.setImg(logic.getImg());
         this.setLeft(backLayout());
-        setCanvas();
 
-        this.setCenter(canvas);
-    }
-
-    private void setCanvas(){
         canvas = new Canvas();
         canvas.heightProperty().bind(this.heightProperty());
         canvas.widthProperty().bind(this.widthProperty());
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        this.setCenter(canvas);
+        gc = canvas.getGraphicsContext2D();
 
-        gc.drawImage(img, 0, 0,canvas.getWidth(), canvas.getHeight());
+        this.addEventHandler(WindowEvent.WINDOW_SHOWN, new ShownHandler());
     }
 
     /**
@@ -57,9 +57,6 @@ public class DrawingGraphics extends BorderPane {
         return rtn;
     }
 
-
-
-
     /**
      * Handler for the back button
      */
@@ -73,4 +70,14 @@ public class DrawingGraphics extends BorderPane {
 
         }
     }
+
+    private class ShownHandler implements EventHandler<WindowEvent> {
+            @Override
+            public void handle(WindowEvent e) {
+                System.out.println("test1");
+                gc.drawImage(drawLogic.getImg(), 0, 0, canvas.getWidth(), canvas.getHeight());
+                System.out.println("test2");
+            }
+        }
+
 }

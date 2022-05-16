@@ -38,11 +38,10 @@ public class EditorGraphic extends BorderPane {
 
     private Robot robot;
 
+    private Button resetBtn;
     private Button grayscaleBtn;
     private ColorPicker colorPicker;
     private Text notSelected;
-
-    private Image img;
 
     /**
      *
@@ -51,7 +50,6 @@ public class EditorGraphic extends BorderPane {
     public EditorGraphic(Logic logic){
         this();
         this.logic = logic;
-        this.img = logic.getImg();
         imageView.setImage(logic.getImg());
     }
 
@@ -144,10 +142,12 @@ public class EditorGraphic extends BorderPane {
         HBox hBox = new HBox();
         hBox.getChildren().addAll(saveBtn, saveAsComboBox, notSelected);
 
-        Button resetBtn = new Button("Reset Image");
+        resetBtn = new Button("Reset Image");
         resetBtn.setOnAction(new ResetHandler());
+        resetBtn.setDisable(true);
         grayscaleBtn = new Button("Grayscale");
         grayscaleBtn.setOnAction(new GrayscaleHandler());
+        grayscaleBtn.setDisable(true);
 
         VBox rtn = new VBox();
         rtn.getChildren().add(colorPicker);
@@ -173,9 +173,11 @@ public class EditorGraphic extends BorderPane {
 
             //Shows selected image
             if (file != null) {
-                logic.setImg( new Image(file.toURI().toString()) );
+                logic.setImg( new Image(file.toURI().toString()), true );
                 imageView.setImage(logic.getImg());
                 notSelected.setText("");
+                resetBtn.setDisable(false);
+                grayscaleBtn.setDisable(false);
             }
         }
     }
@@ -233,10 +235,8 @@ public class EditorGraphic extends BorderPane {
             Image img = logic.getImg();
             DrawingGraphics drawing = new DrawingGraphics(logic);
             Stage s = (Stage)EditorGraphic.this.getScene().getWindow();
-            Scene i = new Scene(drawing, 750, 750);
+            Scene i = new Scene(drawing, EditorGraphic.this.getScene().getWidth(), EditorGraphic.this.getScene().getHeight());
             s.setScene(i);
-            s.setMaximized(true);
-
         }
     }
 
