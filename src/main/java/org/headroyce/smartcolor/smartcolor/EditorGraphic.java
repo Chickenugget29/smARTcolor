@@ -6,11 +6,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
@@ -74,7 +72,6 @@ public class EditorGraphic extends BorderPane {
     }
 
     private VBox imgLayout(){
-
         colorPicker = new ColorPicker();
         colorPicker.setOnAction(new ColorHandler());
         colorPicker.getStyleClass().add("split-button");
@@ -118,9 +115,11 @@ public class EditorGraphic extends BorderPane {
 
         Button uploadBtn = new Button("Choose Image");
         uploadBtn.setOnAction(new UploadHandler());
+        uploadBtn.setCursor(Cursor.HAND);
 
         Button saveBtn = new Button("Save Image As...");
         saveBtn.setOnAction(new SaveHandler());
+        saveBtn.setCursor(Cursor.HAND);
 
         notSelected = new Text("");
         notSelected.setFill(Color.RED);
@@ -144,10 +143,11 @@ public class EditorGraphic extends BorderPane {
 
         resetBtn = new Button("Reset Image");
         resetBtn.setOnAction(new ResetHandler());
-        resetBtn.setDisable(true);
+        resetBtn.setCursor(Cursor.HAND);
+
         grayscaleBtn = new Button("Grayscale");
         grayscaleBtn.setOnAction(new GrayscaleHandler());
-        grayscaleBtn.setDisable(true);
+        grayscaleBtn.setCursor(Cursor.HAND);
 
         VBox rtn = new VBox();
         rtn.getChildren().add(colorPicker);
@@ -174,10 +174,9 @@ public class EditorGraphic extends BorderPane {
             //Shows selected image
             if (file != null) {
                 logic.setImg( new Image(file.toURI().toString()), true );
+                logic.setImgNotUploaded(false);
                 imageView.setImage(logic.getImg());
                 notSelected.setText("");
-                resetBtn.setDisable(false);
-                grayscaleBtn.setDisable(false);
             }
         }
     }
@@ -187,9 +186,10 @@ public class EditorGraphic extends BorderPane {
      */
     private class GrayscaleHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
-            //can be removed if we don't want img to change
-            logic.setImg( logic.toGrayScale() );
-            imageView.setImage(logic.getImg());
+            if( logic.getImg() != null ) {
+                logic.setImg(logic.toGrayScale());
+                imageView.setImage(logic.getImg());
+            }
         }
     }
 
@@ -198,8 +198,18 @@ public class EditorGraphic extends BorderPane {
      */
     private class ResetHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
-            logic.resetImg();
-            imageView.setImage(logic.getImg());
+            Alert alert = new Alert(Alert.AlertType.NONE);
+            alert.setTitle("Reset Image to Original");
+            alert.setContentText("This action cannot be undone. Reset?");
+            ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType cancel = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(yes, cancel);
+            alert.showAndWait().ifPresent(type -> {
+                if( type == yes && logic.getImg() != null ){
+                    logic.resetImg();
+                    imageView.setImage(logic.getImg());
+                }
+            });
         }
     }
 
@@ -233,9 +243,9 @@ public class EditorGraphic extends BorderPane {
     private class DrawHandler implements EventHandler<ActionEvent> {
         public void handle(ActionEvent e) {
             Image img = logic.getImg();
-            DrawingGraphics drawing = new DrawingGraphics(logic);
+            DrawingGraphics dc = new DrawingGraphics(logic, EditorGraphic.this.getScene().getWidth(), EditorGraphic.this.getScene().getHeight());
             Stage s = (Stage)EditorGraphic.this.getScene().getWindow();
-            Scene i = new Scene(drawing, EditorGraphic.this.getScene().getWidth(), EditorGraphic.this.getScene().getHeight());
+            Scene i = new Scene(dc, EditorGraphic.this.getScene().getWidth(), EditorGraphic.this.getScene().getHeight());
             s.setScene(i);
         }
     }

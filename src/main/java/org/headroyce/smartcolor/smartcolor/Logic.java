@@ -15,22 +15,32 @@ public class Logic {
     private Image img;
     private int width;
     private int height;
-    private WritableImage WImg;
+    private WritableImage wImg;
     private Image originalImg;
     private String saveFileFormat;
     private Color fillColor;
     private Color pixelColor;
     private PixelReader pixelReader;
+    private boolean imgNotUploaded;
 
     public Logic(){
         fillColor = Color.WHITE;
+        imgNotUploaded = true;
+    }
+
+    public boolean ImgIsNotUploaded(){
+        return imgNotUploaded;
+    }
+
+    public void setImgNotUploaded( boolean notUploaded ){
+        imgNotUploaded = notUploaded;
     }
 
     /**
      * Sets the image
      * @param img the image to set it to
      */
-    public void setImg( Image img){
+    public void setImg( Image img ){
         setImg(img, false);
     }
 
@@ -47,7 +57,8 @@ public class Logic {
         pixelReader = img.getPixelReader();
         syncWImg();
         if( replaceOriginal){
-            originalImg = copyImage(img);
+            Image image = img;
+            originalImg = copyImage(image);
         }
     }
 
@@ -59,7 +70,6 @@ public class Logic {
                 copy.getPixelWriter().setArgb(x, y, pr.getArgb(x, y));
             }
         }
-        System.out.println("COPY");
         return copy;
     }
 
@@ -79,11 +89,11 @@ public class Logic {
      * Syncs the writable image to the image
      */
     private void syncWImg(){
-        WImg = new WritableImage(width, height);
+        wImg = new WritableImage(width, height);
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                WImg.getPixelWriter().setArgb(x, y, pixelReader.getArgb(x, y));
+                wImg.getPixelWriter().setArgb(x, y, pixelReader.getArgb(x, y));
             }
         }
     }
@@ -92,7 +102,7 @@ public class Logic {
      * Syncs the changes of the image (with the writable image)
      */
     public void syncImg(){
-        img = WImg;
+        img = wImg;
     }
 
     /**
@@ -109,7 +119,6 @@ public class Logic {
     public void resetImg(){
         img = copyImage(originalImg);
         syncWImg();
-        System.out.println("x");
     }
 
     /**
@@ -182,7 +191,7 @@ public class Logic {
             return;
         }
         if( !fillColor.equals(pixelColor) ){
-            WImg.getPixelWriter().setColor(eventx, eventy, fillColor);
+            wImg.getPixelWriter().setColor(eventx, eventy, fillColor);
 
             //changing color of pixels within a 1 pixel radius of the pixel
             for( int x = eventx - 1; x <= eventx + 1; x++ ){
