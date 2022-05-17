@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
@@ -26,6 +27,7 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.File;
 import javax.imageio.ImageIO;
 
@@ -104,7 +106,7 @@ public class EditorGraphic extends BorderPane {
                 int x = (int) (event.getX() / imageView.getFitWidth() * logic.getWidth() + 0.5);
                 int y = (int) (event.getY() / imageView.getFitHeight() * logic.getHeight() + 0.5);
                 logic.setPixelColor(robot.getPixelColor(event.getScreenX(), event.getScreenY()));
-                logic.recolor(x,y,100);
+                logic.recolor(x,y,1000);
                 logic.syncImg();
             } else if (event.getButton() == MouseButton.PRIMARY) {
                 Color color = robot.getPixelColor((int) event.getScreenX(), (int) event.getScreenY());
@@ -254,10 +256,30 @@ public class EditorGraphic extends BorderPane {
      * Deal with key presses
      * @param event the event to handle
      */
+    /**
+     * Deal with key presses
+     * @param event the event to handle
+     */
     public void handleKeyPress(KeyEvent event) {
         // Space is reset button
+
         if( event.getCode() == KeyCode.F ){
+            Point p = MouseInfo.getPointerInfo().getLocation();
+
+            int px = p.x;
+            int py = p.y;
+            int x = (int) (px / imageView.getFitWidth() * logic.getWidth() + 0.5);
+            int y = (int) (py / imageView.getFitHeight() * logic.getHeight() + 0.5);
+
+            logic.setPixelColor(robot.getPixelColor(px,py));
+            logic.recolor(x,y,(int)logic.getImg().getWidth());
 
         }
     }
+
+    /**
+     * Deal with key releases
+     * @param event the event to handle
+     */
+    public void handleKeyRelease(KeyEvent event){}
 }

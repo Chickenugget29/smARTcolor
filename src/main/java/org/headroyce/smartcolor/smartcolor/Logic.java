@@ -209,7 +209,9 @@ public class Logic {
                         }else if( Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
                                 Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015 &&
                                 Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015 )
-                            recolor(x, y, maxDepth - 1);
+                            if(maxDepth - 1 < 0){
+                                recolor(x, y, maxDepth - 1);
+                            }
                     }
                 }
             }
