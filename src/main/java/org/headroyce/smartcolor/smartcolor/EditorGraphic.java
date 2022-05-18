@@ -36,6 +36,7 @@ public class EditorGraphic extends BorderPane {
     private Button grayscaleBtn;
     private ColorPicker colorPicker;
     private Text notSelected;
+    private VBox btns;
 
     /**
      * Creates the editor graphic
@@ -135,7 +136,7 @@ public class EditorGraphic extends BorderPane {
             btnArr[i].setMinWidth(90);
         }
 
-        VBox btns = new VBox(10);
+        btns = new VBox(10);
         btns.setPadding(new Insets(20, 5, 20, 5));
         btns.getChildren().addAll( fillColor, colorPicker, pixelColor, circle, grayscaleBtn, spacer, uploadBtn, resetBtn, draw);
         btns.setStyle("-fx-background-color: #999");

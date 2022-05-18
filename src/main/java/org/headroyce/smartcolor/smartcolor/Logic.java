@@ -176,6 +176,8 @@ public class Logic {
      * @return the new grayscale image
      */
     public Image toGrayScale() {
+        syncImg();
+        syncWImg();
         WritableImage grayImage = new WritableImage(width, height);
 
         //Goes through each pixel of the image
