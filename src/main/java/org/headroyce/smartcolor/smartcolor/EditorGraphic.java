@@ -10,16 +10,14 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.robot.Robot;
 import javafx.scene.shape.Circle;
@@ -54,48 +52,30 @@ public class EditorGraphic extends BorderPane {
     }
 
     public EditorGraphic(){
-        this.setCenter(imgLayout());
-        this.setRight(drawingBtnLayout());
-        this.logic = new Logic();
-    }
+        Label fillColor = new Label("Fill Color");
+        Label pixelColor = new Label("Pixel Color");
 
-    /**
-     * Creates the drawing button layout
-     * @return the layout
-     */
-    private VBox drawingBtnLayout(){
-        VBox rtn = new VBox();
-
-        Button draw = new Button("Draw");
-        draw.setOnAction(new DrawHandler());
-        rtn.getChildren().add(draw);
-
-        return rtn;
-    }
-
-    private VBox imgLayout(){
         colorPicker = new ColorPicker();
         colorPicker.setOnAction(new ColorHandler());
-        colorPicker.getStyleClass().add("split-button");
         colorPicker.setMinSize(20,25);
 
-        Circle circle = new Circle(10, 10, 10);
+        Circle circle = new Circle(20, 20, 20);
         circle.setStroke(Color.BLACK);
         circle.setFill(colorPicker.getValue());
 
-        VBox vbox = new VBox();
-        vbox.setMinSize(0, 0);
-        vbox.setFillWidth(true);
-        vbox.prefHeightProperty().bind(this.heightProperty());
+        VBox imgvwVB = new VBox();
+        imgvwVB.setMinSize(10, 10);
+        imgvwVB.setFillWidth(true);
+        imgvwVB.prefHeightProperty().bind(this.heightProperty());
 
         imageView = new ImageView();
-        imageView.fitWidthProperty().bind(vbox.widthProperty());
-        imageView.fitHeightProperty().bind(vbox.heightProperty());
+        imageView.fitWidthProperty().bind(imgvwVB.widthProperty());
+        imageView.fitHeightProperty().bind(imgvwVB.heightProperty());
         imageView.setPreserveRatio(true);
+        imgvwVB.getChildren().add(imageView);
 
         // Robot to trace pixel information
         robot = new Robot();
-        vbox.getChildren().add(imageView);
 
         imageView.setOnMouseMoved(event -> {
             Color color = robot.getPixelColor((int) event.getScreenX(), (int)event.getScreenY ());
@@ -115,9 +95,51 @@ public class EditorGraphic extends BorderPane {
             }
         });
 
-        Button uploadBtn = new Button("Choose Image");
-        uploadBtn.setOnAction(new UploadHandler());
-        uploadBtn.setCursor(Cursor.HAND);
+        grayscaleBtn = new Button("Grayscale");
+        grayscaleBtn.setOnAction(new GrayscaleHandler());
+
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        Button uploadBtn = new Button("Upload");
+        uploadBtn.setOnAction(e->{
+            if( logic.ImgIsNotUploaded() ){
+                upload();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.NONE);
+                alert.setTitle("Upload New Image");
+                alert.setContentText("This action will override the existing image. Proceed?");
+                ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                ButtonType cancel = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(yes, cancel);
+                alert.showAndWait().ifPresent(type -> {
+                    if( type == yes ){
+                        upload();
+                    }
+                });
+            }
+        });
+
+        resetBtn = new Button("Reset Image");
+        resetBtn.setOnAction(new ResetHandler());
+
+        Button draw = new Button("Draw");
+        draw.setOnAction(new DrawHandler());
+        draw.setTextFill(Color.WHITE);
+        draw.setStyle("-fx-background-color: #666;");
+
+        Button[] btnArr = new Button[] { grayscaleBtn, uploadBtn, resetBtn, draw };
+
+        for( int i = 0; i < btnArr.length; i++ ){
+            btnArr[i].setCursor(Cursor.HAND);
+            btnArr[i].setMinWidth(90);
+        }
+
+        VBox btns = new VBox(10);
+        btns.setPadding(new Insets(20, 5, 20, 5));
+        btns.getChildren().addAll( fillColor, colorPicker, pixelColor, circle, grayscaleBtn, spacer, uploadBtn, resetBtn, draw);
+        btns.setStyle("-fx-background-color: #999");
+        btns.setPrefWidth(100);
 
         Button saveBtn = new Button("Save Image As...");
         saveBtn.setOnAction(new SaveHandler());
@@ -140,46 +162,34 @@ public class EditorGraphic extends BorderPane {
             }
         });
 
-        HBox hBox = new HBox();
-        hBox.getChildren().addAll(saveBtn, saveAsComboBox, notSelected);
+        HBox imgOptions = new HBox();
+        imgOptions.getChildren().addAll(saveBtn, saveAsComboBox, notSelected);
 
-        resetBtn = new Button("Reset Image");
-        resetBtn.setOnAction(new ResetHandler());
-        resetBtn.setCursor(Cursor.HAND);
-
-        grayscaleBtn = new Button("Grayscale");
-        grayscaleBtn.setOnAction(new GrayscaleHandler());
-        grayscaleBtn.setCursor(Cursor.HAND);
-
-        VBox rtn = new VBox();
-        rtn.getChildren().add(colorPicker);
-        rtn.getChildren().add(circle);
-        rtn.getChildren().addAll(uploadBtn, hBox, resetBtn, grayscaleBtn, vbox);
-
-        return rtn;
+        this.setLeft(btns);
+        this.setCenter(imgvwVB);
+        this.setTop(imgOptions);
+        this.logic = new Logic();
     }
 
     /**
-     * Handler for the upload button
+     * Allows user to upload image. Only takes JPGs and PNGs
      */
-    private class UploadHandler implements EventHandler<ActionEvent> {
-        public void handle(ActionEvent e) {
-            FileChooser fileChooser = new FileChooser();
+    private void upload(){
+        FileChooser fileChooser = new FileChooser();
 
-            //Set extension filter, only shows jpg and png
-            fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("Image Files","PNG", "JPEG", "JPG", "*.png", "*.jpeg", "*.jpg"));
+        //Set extension filter, only shows jpg and png
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "PNG", "JPEG", "JPG", "*.png", "*.jpeg", "*.jpg"));
 
-            //Show open file dialog
-            File file = fileChooser.showOpenDialog(null);
+        //Show open file dialog
+        File file = fileChooser.showOpenDialog(null);
 
-            //Shows selected image
-            if (file != null) {
-                logic.setImg( new Image(file.toURI().toString()), true );
-                logic.setImgNotUploaded(false);
-                imageView.setImage(logic.getImg());
-                notSelected.setText("");
-            }
+        //Shows selected image
+        if (file != null) {
+            logic.setImg(new Image(file.toURI().toString()), true);
+            logic.setImgNotUploaded(false);
+            imageView.setImage(logic.getImg());
+            notSelected.setText("");
         }
     }
 
@@ -252,7 +262,6 @@ public class EditorGraphic extends BorderPane {
         }
     }
 
-
     /**
      * Deal with key presses
      * @param event the event to handle
@@ -270,7 +279,7 @@ public class EditorGraphic extends BorderPane {
 
             logic.setPixelColor(robot.getPixelColor(px,py));
             logic.recolor(x,y,(int)logic.getImg().getWidth());
-
+            logic.syncImg();
         }
     }
 

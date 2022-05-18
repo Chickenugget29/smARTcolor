@@ -10,6 +10,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
@@ -26,11 +28,12 @@ public class DrawingGraphics extends BorderPane {
     private GraphicsContext gc;
 
     /**
-     *
-     * @param logic
+     * Creates the drawing graphics
+     * @param logic the logic to set
+     * @param width the width of the scene
+     * @param height the height of the scene
      */
     public DrawingGraphics(Logic logic, double width, double height){
-        //might not need logic
         this.logic = logic;
         this.setWidth(width);
         this.setHeight(height);
@@ -116,9 +119,11 @@ public class DrawingGraphics extends BorderPane {
         }
 
         VBox btns = new VBox(10);
+        btns.setPadding(new Insets(20, 5, 20, 5));
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
         btns.getChildren().addAll(drawbtn, eraserbtn, linebtn, rectbtn, circlebtn, ellipsebtn,
-                textbtn, text, lineColor, cpLine, fillColor, cpFill, lineWidth, sizeSlider, clear, back, cancel);
-        btns.setPadding(new Insets(5));
+                textbtn, text, lineColor, cpLine, fillColor, cpFill, lineWidth, sizeSlider, spacer, clear, back, cancel);
         btns.setStyle("-fx-background-color: #999");
         btns.setPrefWidth(100);
 
@@ -127,11 +132,17 @@ public class DrawingGraphics extends BorderPane {
         canvasSP.setMinSize(width, height);
         canvasSP.setPrefSize(width, height);
         canvasSP.prefHeightProperty().bind(this.heightProperty());
+        canvasSP.prefWidthProperty().bind(this.widthProperty());
 
-        canvas = new Canvas(logic.getImg().getWidth(),logic.getImg().getHeight());
+        if(logic.getImg() != null ) {
+            canvas = new Canvas(logic.getImg().getWidth(), logic.getImg().getHeight());
+        } else {
+            canvas = new Canvas(this.getWidth(),this.getHeight());
+        }
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(1);
         gc.drawImage(logic.getImg(), 0, 0, canvas.getWidth(), canvas.getHeight());
+
         canvasSP.setContent(canvas);
 
         Line line = new Line();
@@ -274,7 +285,6 @@ public class DrawingGraphics extends BorderPane {
         this.setCenter(canvasSP);
     }
 
-
     /**
      * Returns scene to editor graphic
      */
@@ -284,5 +294,4 @@ public class DrawingGraphics extends BorderPane {
         Scene i = new Scene(eg, DrawingGraphics.this.getScene().getWidth(), DrawingGraphics.this.getScene().getHeight());
         s.setScene(i);
     }
-
 }

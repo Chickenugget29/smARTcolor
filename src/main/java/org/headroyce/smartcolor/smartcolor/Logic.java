@@ -23,15 +23,26 @@ public class Logic {
     private PixelReader pixelReader;
     private boolean imgNotUploaded;
 
+    /**
+     * Creates the logic
+     */
     public Logic(){
         fillColor = Color.WHITE;
         imgNotUploaded = true;
     }
 
+    /**
+     * Checks if there is no uploaded image
+     * @return true if no image is uploaded, false otherwise
+     */
     public boolean ImgIsNotUploaded(){
         return imgNotUploaded;
     }
 
+    /**
+     * Sets if the image has been uploaded or not
+     * @param notUploaded if the image has not been uploaded
+     */
     public void setImgNotUploaded( boolean notUploaded ){
         imgNotUploaded = notUploaded;
     }
@@ -62,6 +73,11 @@ public class Logic {
         }
     }
 
+    /**
+     * Makes a copy of an image
+     * @param img the image to copy
+     * @return a WritableImage copy of the image
+     */
     public Image copyImage( Image img ){
         PixelReader pr = img.getPixelReader();
         WritableImage copy = new WritableImage((int)img.getWidth(), (int)img.getHeight());
@@ -102,7 +118,7 @@ public class Logic {
      * Syncs the changes of the image (with the writable image)
      */
     public void syncImg(){
-        img = wImg;
+        img = copyImage(wImg);
         System.out.println("h");
     }
 
@@ -186,36 +202,50 @@ public class Logic {
         return grayImage;
     }
 
+    /**
+     * Recolors a certain colored area of the drawing
+     * @param eventx the x coordinate of the pixel clicked
+     * @param eventy the y coordinate of the pixel clicked
+     * @param maxDepth the maximum radius the fill can spread to
+     */
     public void recolor( int eventx, int eventy, int maxDepth ){
-        System.err.println(maxDepth);
         System.out.println(eventx + " " + eventy);
-        if( maxDepth >= 0 ){
+        if( maxDepth == 1 ){
+            System.out.println("XXX");
             return;
         }
-        System.err.println("ok");
-        if( !fillColor.equals(pixelColor) ){
-            wImg.getPixelWriter().setColor(eventx, eventy, fillColor);
-            System.err.println("ok1");
-            //changing color of pixels within a 1 pixel radius of the pixel
-            for( int x = eventx - 1; x <= eventx + 1; x++ ){
-                if( x < 0 || x >= width ){
+        System.out.println(wImg.getPixelReader().getColor(eventx, eventy));
+        wImg.getPixelWriter().setColor(eventx, eventy, fillColor);
+        //changing color of pixels within a 1 pixel radius of the pixel
+        for( int x = eventx - 1; x <= eventx + 1; x++ ){
+            if( x < 0 || x >= width ){
+                continue;
+            }
+            for( int y = eventy - 1; y <= eventy + 1; y++ ) {
+                if( y < 0 || y >= height ){
                     continue;
                 }
-                for( int y = eventy - 1; y <= eventy + 1; y++ ) {
-                    if( y < 0 || y >= height ){
-                        continue;
-                    }
-                    if( !(x == eventx && y == eventy) ){
-                        Color c = pixelReader.getColor(x, y);
-                        if( !fillColor.equals(c) &&
-                                Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
-                                Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015 &&
-                                Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015 )
-                            if(maxDepth > 0 ){
-                                System.out.println("recursion");
-                                recolor(x, y, maxDepth - 1);
-                            }
-                    }
+                if( !(x == eventx && y == eventy) ){
+                    Color c = wImg.getPixelReader().getColor(x, y);
+                    System.out.println(maxDepth + "*");
+                    System.out.println(!fillColor.equals(c) &&
+                            Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
+                            Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015 &&
+                            Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015);
+                    System.out.println(c);
+                    System.out.println(pixelColor);
+                    System.out.println(!fillColor.equals(c));
+                    System.out.println(Math.abs(c.getHue() - pixelColor.getHue()) <= 2);
+                    System.out.println(Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015);
+                    System.out.println(Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015);
+                    if( !fillColor.equals(c) &&
+                            Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
+                            Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015 &&
+                            Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015 )
+                        if( maxDepth > 1 ){
+                            System.out.println("recursion");
+                            recolor(x, y, maxDepth - 1);
+                        }
                 }
             }
         }
