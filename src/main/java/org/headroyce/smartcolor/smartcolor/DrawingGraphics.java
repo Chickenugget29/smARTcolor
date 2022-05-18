@@ -123,19 +123,16 @@ public class DrawingGraphics extends BorderPane {
         btns.setPrefWidth(100);
 
         // canvas
-        VBox canvasVB = new VBox();
-        canvasVB.setMinSize(width, height);
-        canvasVB.setPrefSize(width, height);
-        canvasVB.setFillWidth(true);
-        canvasVB.prefHeightProperty().bind(this.heightProperty());
+        ScrollPane canvasSP = new ScrollPane();
+        canvasSP.setMinSize(width, height);
+        canvasSP.setPrefSize(width, height);
+        canvasSP.prefHeightProperty().bind(this.heightProperty());
 
-        canvas = new Canvas(width, height);
-        //canvas.widthProperty().bind(canvasVB.widthProperty());
-        //canvas.heightProperty().bind(canvasVB.heightProperty());
+        canvas = new Canvas(logic.getImg().getWidth(),logic.getImg().getHeight());
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(1);
         gc.drawImage(logic.getImg(), 0, 0, canvas.getWidth(), canvas.getHeight());
-        canvasVB.getChildren().add(canvas);
+        canvasSP.setContent(canvas);
 
         Line line = new Line();
         Rectangle rect = new Rectangle();
@@ -274,7 +271,7 @@ public class DrawingGraphics extends BorderPane {
         });
 
         this.setLeft(btns);
-        this.setCenter(canvasVB);
+        this.setCenter(canvasSP);
     }
 
 
