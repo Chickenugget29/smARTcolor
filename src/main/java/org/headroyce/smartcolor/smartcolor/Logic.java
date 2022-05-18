@@ -103,6 +103,7 @@ public class Logic {
      */
     public void syncImg(){
         img = wImg;
+        System.out.println("h");
     }
 
     /**
@@ -187,8 +188,8 @@ public class Logic {
 
     public void recolor( int eventx, int eventy, int maxDepth ){
         System.err.println(maxDepth);
-        if( maxDepth == 0 ){
-
+        System.out.println(eventx + " " + eventy);
+        if( maxDepth >= 0 ){
             return;
         }
         System.err.println("ok");
@@ -206,16 +207,13 @@ public class Logic {
                     }
                     if( !(x == eventx && y == eventy) ){
                         Color c = pixelReader.getColor(x, y);
-                        if(fillColor.equals(c)){
-                            continue;
-                        }else if( Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
+                        if( !fillColor.equals(c) &&
+                                Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
                                 Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015 &&
                                 Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015 )
-
-                            if(maxDepth - 1 >= 1){
+                            if(maxDepth > 0 ){
                                 System.out.println("recursion");
                                 recolor(x, y, maxDepth - 1);
-
                             }
                     }
                 }

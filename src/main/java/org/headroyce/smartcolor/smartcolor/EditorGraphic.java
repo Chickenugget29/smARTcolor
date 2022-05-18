@@ -106,7 +106,7 @@ public class EditorGraphic extends BorderPane {
                 int x = (int) (event.getX() / imageView.getFitWidth() * logic.getWidth() + 0.5);
                 int y = (int) (event.getY() / imageView.getFitHeight() * logic.getHeight() + 0.5);
                 logic.setPixelColor(robot.getPixelColor(event.getScreenX(), event.getScreenY()));
-                logic.recolor(x,y,1000);
+                logic.recolor(x,y,(int)this.getWidth());
                 logic.syncImg();
             } else if (event.getButton() == MouseButton.PRIMARY) {
                 Color color = robot.getPixelColor((int) event.getScreenX(), (int) event.getScreenY());
