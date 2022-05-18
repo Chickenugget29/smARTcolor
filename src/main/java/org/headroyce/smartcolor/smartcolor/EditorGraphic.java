@@ -252,10 +252,7 @@ public class EditorGraphic extends BorderPane {
         }
     }
 
-    /**
-     * Deal with key presses
-     * @param event the event to handle
-     */
+
     /**
      * Deal with key presses
      * @param event the event to handle

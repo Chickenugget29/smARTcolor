@@ -186,13 +186,15 @@ public class Logic {
     }
 
     public void recolor( int eventx, int eventy, int maxDepth ){
-
+        System.err.println(maxDepth);
         if( maxDepth == 0 ){
+
             return;
         }
+        System.err.println("ok");
         if( !fillColor.equals(pixelColor) ){
             wImg.getPixelWriter().setColor(eventx, eventy, fillColor);
-
+            System.err.println("ok1");
             //changing color of pixels within a 1 pixel radius of the pixel
             for( int x = eventx - 1; x <= eventx + 1; x++ ){
                 if( x < 0 || x >= width ){
@@ -209,8 +211,11 @@ public class Logic {
                         }else if( Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
                                 Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015 &&
                                 Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015 )
-                            if(maxDepth - 1 < 0){
+
+                            if(maxDepth - 1 >= 1){
+                                System.out.println("recursion");
                                 recolor(x, y, maxDepth - 1);
+
                             }
                     }
                 }
