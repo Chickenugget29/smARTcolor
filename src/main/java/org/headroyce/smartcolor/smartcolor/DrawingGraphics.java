@@ -1,8 +1,5 @@
 package org.headroyce.smartcolor.smartcolor;
 
-import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -17,7 +14,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.scene.image.WritableImage;
 
 
@@ -39,7 +35,7 @@ public class DrawingGraphics extends BorderPane {
         this.setHeight(height);
 
         // Tools to draw
-        ToggleButton drawbtn = new ToggleButton("Draw");
+        ToggleButton drawbtn = new ToggleButton("Pen");
         ToggleButton eraserbtn = new ToggleButton("Eraser");
         ToggleButton linebtn = new ToggleButton("Line");
         ToggleButton rectbtn = new ToggleButton("Rectangle");

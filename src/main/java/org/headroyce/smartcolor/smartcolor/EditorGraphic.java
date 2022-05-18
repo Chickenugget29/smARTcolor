@@ -4,7 +4,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -13,7 +12,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelReader;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -24,10 +22,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import java.awt.*;
 import java.io.File;
-import javax.imageio.ImageIO;
 
 public class EditorGraphic extends BorderPane {
     private ImageView imageView;
@@ -42,8 +38,8 @@ public class EditorGraphic extends BorderPane {
     private Text notSelected;
 
     /**
-     *
-     * @param logic
+     * Creates the editor graphic
+     * @param logic the previous logic
      */
     public EditorGraphic(Logic logic){
         this();
@@ -51,6 +47,9 @@ public class EditorGraphic extends BorderPane {
         imageView.setImage(logic.getImg());
     }
 
+    /**
+     * Creates the editor graphic and sets up buttons
+     */
     public EditorGraphic(){
         Label fillColor = new Label("Fill Color");
         Label pixelColor = new Label("Pixel Color");
@@ -86,8 +85,9 @@ public class EditorGraphic extends BorderPane {
                 int x = (int) (event.getX() / imageView.getFitWidth() * logic.getWidth() + 0.5);
                 int y = (int) (event.getY() / imageView.getFitHeight() * logic.getHeight() + 0.5);
                 logic.setPixelColor(robot.getPixelColor(event.getScreenX(), event.getScreenY()));
-                logic.recolor(x,y,(int)this.getWidth());
+                logic.flood(x,y,1000);
                 logic.syncImg();
+                imageView.setImage(logic.getImg());
             } else if (event.getButton() == MouseButton.PRIMARY) {
                 Color color = robot.getPixelColor((int) event.getScreenX(), (int) event.getScreenY());
                 colorPicker.setValue(color);
@@ -271,15 +271,15 @@ public class EditorGraphic extends BorderPane {
 
         if( event.getCode() == KeyCode.F ){
             Point p = MouseInfo.getPointerInfo().getLocation();
-
             int px = p.x;
             int py = p.y;
             int x = (int) (px / imageView.getFitWidth() * logic.getWidth() + 0.5);
             int y = (int) (py / imageView.getFitHeight() * logic.getHeight() + 0.5);
 
             logic.setPixelColor(robot.getPixelColor(px,py));
-            logic.recolor(x,y,(int)logic.getImg().getWidth());
+            logic.flood(x,y,1000);
             logic.syncImg();
+            imageView.setImage(logic.getImg());
         }
     }
 

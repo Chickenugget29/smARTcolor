@@ -104,7 +104,8 @@ public class Logic {
     /**
      * Syncs the writable image to the image
      */
-    private void syncWImg(){
+    public void syncWImg(){
+        pixelReader = img.getPixelReader();
         wImg = new WritableImage(width, height);
 
         for (int y = 0; y < height; y++) {
@@ -119,14 +120,14 @@ public class Logic {
      */
     public void syncImg(){
         img = copyImage(wImg);
-        System.out.println("h");
     }
 
     /**
-     * Gets the image
+     * Syncs the image and gets the image
      * @return the image
      */
     public Image getImg(){
+        syncImg();
         return img;
     }
 
@@ -204,49 +205,31 @@ public class Logic {
 
     /**
      * Recolors a certain colored area of the drawing
-     * @param eventx the x coordinate of the pixel clicked
-     * @param eventy the y coordinate of the pixel clicked
-     * @param maxDepth the maximum radius the fill can spread to
+     * @param x the x coordinate of the pixel clicked
+     * @param y the y coordinate of the pixel clicked
      */
-    public void recolor( int eventx, int eventy, int maxDepth ){
-        System.out.println(eventx + " " + eventy);
-        if( maxDepth == 1 ){
-            System.out.println("XXX");
-            return;
-        }
-        System.out.println(wImg.getPixelReader().getColor(eventx, eventy));
-        wImg.getPixelWriter().setColor(eventx, eventy, fillColor);
-        //changing color of pixels within a 1 pixel radius of the pixel
-        for( int x = eventx - 1; x <= eventx + 1; x++ ){
-            if( x < 0 || x >= width ){
-                continue;
-            }
-            for( int y = eventy - 1; y <= eventy + 1; y++ ) {
-                if( y < 0 || y >= height ){
-                    continue;
-                }
-                if( !(x == eventx && y == eventy) ){
-                    Color c = wImg.getPixelReader().getColor(x, y);
-                    System.out.println(maxDepth + "*");
-                    System.out.println(!fillColor.equals(c) &&
-                            Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
-                            Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015 &&
-                            Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015);
-                    System.out.println(c);
-                    System.out.println(pixelColor);
-                    System.out.println(!fillColor.equals(c));
-                    System.out.println(Math.abs(c.getHue() - pixelColor.getHue()) <= 2);
-                    System.out.println(Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015);
-                    System.out.println(Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015);
-                    if( !fillColor.equals(c) &&
-                            Math.abs(c.getHue() - pixelColor.getHue()) <= 2 &&
-                            Math.abs(c.getSaturation() - pixelColor.getSaturation()) <= 0.015 &&
-                            Math.abs(c.getBrightness() - pixelColor.getBrightness()) <= 0.015 )
-                        if( maxDepth > 1 ){
-                            System.out.println("recursion");
-                            recolor(x, y, maxDepth - 1);
-                        }
-                }
+    public void flood( int x, int y, int maxDepth ){
+        if( maxDepth >= 0 && x >= 0 && y >= 0
+                && x < wImg.getWidth()
+                && y < wImg.getHeight() ){
+
+            // color at point x, y
+            Color c = wImg.getPixelReader().getColor(x, y);
+
+            // if pixel has not already been filled and the color of the new pixel is similar
+            if( !fillColor.equals(c)
+                    && Math.abs(c.getGreen() - pixelColor.getGreen()) < .2
+                    && Math.abs(c.getRed() - pixelColor.getRed()) < .2
+                    && Math.abs(c.getBlue() - pixelColor.getBlue()) < .2 ){
+
+                // change image pixel color
+                wImg.getPixelWriter().setColor(x, y, fillColor);
+
+                // floodfill in all possible directions
+                if(y <= wImg.getHeight() - 1) flood( x, y + 1,maxDepth-1);
+                if(x <= wImg.getWidth() - 1) flood(x + 1, y,maxDepth-1);
+                if(x >= 1) flood(x - 1, y, maxDepth-1);
+                if(y >= 1) flood( x, y - 1, maxDepth-1);
             }
         }
     }
